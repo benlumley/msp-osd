@@ -85,6 +85,12 @@ Betaflight does not support HD OSD. So you have the same 30 * 16 grid as analog 
 
 You can swap to a different font to make the characters smaller, but the grid spacing is the same.
 
+### Can I disable the built in DJI OSD (voltages, signal strength, mbps, recording status etc)
+
+No. You need to configure your flight controller OSD around the elements from the goggles.
+
+But do make sure you disable 'Custom OSD' in the DJI menus to avoid duplicating any of the OSD from the flight controller.
+
 # Compiling (development and debugging)
 
 To build for DJI, install the [Android NDK](https://developer.android.com/ndk/downloads) and add the NDK toolchain to your PATH, then use `ndk-build` to build the targets. 
