@@ -110,7 +110,11 @@ Additional debugging can be enabled using `-DDEBUG` as a CFLAG.
 `adb push libs/armeabi-v7a/libdisplayport_osd_shim.so /tmp`
 `LD_PRELOAD=/tmp/libdisplayport_osd_shim.so dji_glasses -g`
 
-`LD_PRELOAD=/tmp/libdisplayport_osd_shim.so dji_gls_wm150 -g`
+`setprop dji.glasses_wm150_service 0`
+
+`LD_PRELOAD=/tmp/libdisplayport_osd_shim.so dji_gls_wm150_original -g`
+
+`modmanager enable diy_glasses displayport_osd_shim_dev`
 
 ### Air Unit / Air Unit Lite (Vista)
 
