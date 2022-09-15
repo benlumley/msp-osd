@@ -62,8 +62,8 @@
 ( (((data) >> 24) & 0x000000FF) | (((data) >>  8) & 0x0000FF00) | \
   (((data) <<  8) & 0x00FF0000) | (((data) << 24) & 0xFF000000) )
 
-#define MAX_DISPLAY_X 50
-#define MAX_DISPLAY_Y 18
+#define MAX_DISPLAY_X 60
+#define MAX_DISPLAY_Y 22
 typedef struct display_info_s {
     uint8_t char_width;
     uint8_t char_height;
@@ -144,12 +144,16 @@ static int fakehd_trigger_y = 99;
 
 static void check_is_fakehd_enabled()
 {
+    DEBUG_PRINT("checking for fakehd\n");
     // for future replacement with proper package config
     struct stat buffer;
     int exist = stat(FAKEHD_ENABLE_FILE, &buffer);
     if (exist == 0)
     {
+        DEBUG_PRINT("fakehd enabled\n");
         fakehd_enabled = 1;
+    } else {
+        DEBUG_PRINT("fakehd disabled\n");
     }
 }
 
@@ -164,7 +168,6 @@ static void fakehd_map_sd_character_map_to_hd()
             // skip if it's not a character
             if (msp_character_map[x][y] != 0)
             {
-
                 // if current element has a character in this range,
                 // record the current position as the 'trigger' position
                 // the range covers the betaflight battery symbols and the timer symbols
@@ -174,6 +177,7 @@ static void fakehd_map_sd_character_map_to_hd()
                 msp_character_map[x][y] >= 0x90 &&
                 msp_character_map[x][y] <= 0x9c)
                 {
+                    DEBUG_PRINT("found fakehd triggger \n");
                     fakehd_trigger_x = x;
                     fakehd_trigger_y = y;
                 }
@@ -183,8 +187,8 @@ static void fakehd_map_sd_character_map_to_hd()
                 // timer/battery symbols
                 if (
                     fakehd_trigger_x != 99
-                    && msp_character_map[fakehd_trigger_x][fakehd_trigger_y] >= 0x90
-                    && msp_character_map[fakehd_trigger_x][fakehd_trigger_y] <= 0x9c
+                    && !(msp_character_map[fakehd_trigger_x][fakehd_trigger_y] >= 0x90
+                    && msp_character_map[fakehd_trigger_x][fakehd_trigger_y] <= 0x9c)
                 )
                 {
                     render_x = x + 15;
@@ -387,6 +391,20 @@ static void load_font() {
     if (open_font(SDCARD_FONT_PATH, &hd_display_info.font_page_2, 1, 1) < 0) {
         if (open_font(ENTWARE_FONT_PATH, &hd_display_info.font_page_2, 1, 1) < 0) {
           open_font(FALLBACK_FONT_PATH, &hd_display_info.font_page_2, 1, 1);
+        }
+    }
+    if (open_font(SDCARD_FONT_PATH, &full_display_info.font_page_1, 0, 1) < 0)
+    {
+        if (open_font(ENTWARE_FONT_PATH, &full_display_info.font_page_1, 0, 1) < 0)
+        {
+            open_font(FALLBACK_FONT_PATH, &full_display_info.font_page_1, 0, 1);
+        }
+    }
+    if (open_font(SDCARD_FONT_PATH, &full_display_info.font_page_2, 1, 1) < 0)
+    {
+        if (open_font(ENTWARE_FONT_PATH, &full_display_info.font_page_2, 1, 1) < 0)
+        {
+            open_font(FALLBACK_FONT_PATH, &full_display_info.font_page_2, 1, 1);
         }
     }
     if (open_font(SDCARD_FONT_PATH, &overlay_display_info.font_page_1, 0, 1) < 0) {
