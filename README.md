@@ -53,9 +53,9 @@ A diagram to help...
 
 ##### Notes:
 
-a) If you use any Voltage elements or the Fly Min OSD elements, fakehd will find the associated icon (Battery symbol or Fly Min glyph) and then use their presence/absence to enable/disable itself so that it doesn't put gaps into the menus and post flight stats. If you don't use these elements it will still work; but you will see the gaps in the menus + post flight stats.
+a) If you use the Fly Min OSD element, fakehd will find the associated icon (Fly Min glyph) and then use it's presence/absence to enable/disable the gaps so that it doesn't put gaps into the menus and post flight stats - they appear in the center of the screen instead. If you don't use this element, fakehd will still work; but you will see the gaps in the menus + post flight stats.
 
-b) Because of a, if you switch to a different quad or OSD config (specifically the voltage/Fly Min elements in different places), fakehd will disable - you will need to reboot your Goggles to get it back.
+b) Because of a, if you switch to a different quad or OSD config (specifically the Fly Min element is in different place), fakehd will center - you will need to reboot your Goggles to get it back.
 
 ### iNav
 
