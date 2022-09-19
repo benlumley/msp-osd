@@ -170,14 +170,10 @@ static void fakehd_map_sd_character_map_to_hd()
             // skip if it's not a character
             if (msp_character_map[x][y] != 0)
             {
-                // if current element has a character in this range,
+                // if current element is fly min icon
                 // record the current position as the 'trigger' position
-                // the range covers the betaflight battery symbols and the timer symbols
-                // hopefully this has people covered
-                // if you use inav/ardu, use proper HD OSD!!
                 if (fakehd_trigger_x == 99 &&
-                msp_character_map[x][y] >= 0x90 &&
-                msp_character_map[x][y] <= 0x9c)
+                msp_character_map[x][y] == 0x9c)
                 {
                     DEBUG_PRINT("found fakehd triggger \n");
                     fakehd_trigger_x = x;
@@ -188,9 +184,8 @@ static void fakehd_map_sd_character_map_to_hd()
                 // this is intented to center the menu + postflight stats, which don't contain
                 // timer/battery symbols
                 if (
-                    fakehd_trigger_x != 99
-                    && !(msp_character_map[fakehd_trigger_x][fakehd_trigger_y] >= 0x90
-                    && msp_character_map[fakehd_trigger_x][fakehd_trigger_y] <= 0x9c)
+                    fakehd_trigger_x != 99 &&
+                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c
                 )
                 {
                     render_x = x + 15;
