@@ -199,11 +199,15 @@ static void fakehd_map_sd_character_map_to_hd()
                     render_y = y;
                     if (y >= 10)
                     {
-                        render_y += 6;
+                        render_y += 5;
                     }
                     else if (y >= 5)
                     {
                         render_y += 3;
+                    }
+                    else
+                    {
+                        render_y += 1;
                     }
 
                     render_x = x;
@@ -212,11 +216,15 @@ static void fakehd_map_sd_character_map_to_hd()
                         render_x += 15;
                     } else if (x >= 20)
                     {
-                        render_x += 30;
+                        render_x += 29;
                     }
                     else if (x >= 10)
                     {
                         render_x += 15;
+                    }
+                    else
+                    {
+                        render_x += 1;
                     }
                 }
                 msp_render_character_map[render_x][render_y] = msp_character_map[x][y];
