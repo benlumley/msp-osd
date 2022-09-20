@@ -139,7 +139,7 @@ static display_info_t *current_display_info;
 
 int event_fd;
 
-#define FAKEHD_ENABLE_FILE "/storage/sdcard0/fakehd"
+#define FAKEHD_ENABLE_KEY "fakehd_enable"
 static int fakehd_enabled = 0;
 static int fakehd_trigger_x = 99;
 static int fakehd_trigger_y = 99;
@@ -147,10 +147,7 @@ static int fakehd_trigger_y = 99;
 static void check_is_fakehd_enabled()
 {
     DEBUG_PRINT("checking for fakehd\n");
-    // for future replacement with proper package config
-    struct stat buffer;
-    int exist = stat(FAKEHD_ENABLE_FILE, &buffer);
-    if (exist == 0)
+    if (get_boolean_config_value(FAKEHD_ENABLE_KEY))
     {
         DEBUG_PRINT("fakehd enabled\n");
         fakehd_enabled = 1;
