@@ -192,16 +192,16 @@ static void fakehd_map_sd_character_map_to_hd()
                     render_y = y;
                     if (y >= 10)
                     {
-                        render_y += 5;
+                        render_y += 6;
                     }
                     else if (y >= 5)
                     {
                         render_y += 3;
                     }
-                    else
-                    {
-                        render_y += 1;
-                    }
+                    // else
+                    // {
+                    //     render_y += 0;
+                    // }
 
                     render_x = x;
                     // a full/unspaced couple of rows for warnings...
