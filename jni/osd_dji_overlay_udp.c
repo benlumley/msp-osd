@@ -207,7 +207,8 @@ static void fakehd_map_sd_character_map_to_hd()
 
                     render_x = x;
                     // a full/unspaced couple of rows for warnings...
-                    if (y == 6 || y == 7) {
+                    // and the bottom row may as well be as the edges just overlap the DJI built in bits
+                    if (y == 6 || y == 7 || y== 15) {
                         render_x += 15;
                     } else if (x >= 20)
                     {
