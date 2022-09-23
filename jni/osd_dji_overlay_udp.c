@@ -249,7 +249,7 @@ static void fakehd_map_sd_character_map_to_hd()
                 // and also the three adjacent positions where the thottle percent will be
                 if (fakehd_trigger_x != 99 &&
                     fakehd_hide_throttle_element &&
-                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] == 0x04)
+                    msp_character_map[x][y] == 0x04)
                 {
                     msp_render_character_map[render_x][render_y] = 0;
                     (render_x <= 57) && (msp_render_character_map[render_x+1][render_y] = 0);
