@@ -48,6 +48,11 @@
 #define ENTWARE_FONT_PATH "/opt/fonts/font"
 #define SDCARD_FONT_PATH "/storage/sdcard0/font"
 
+#define FONT_VARIANT_GENERIC 0
+#define FONT_VARIANT_BETAFLIGHT 1
+#define FONT_VARIANT_INAV 2
+#define FONT_VARIANT_ARDUPILOT 3
+
 #define GOGGLES_VOLTAGE_PATH "/sys/devices/platform/soc/f0a00000.apb/f0a71000.omc/voltage5"
 
 #define EV_CODE_BACK 0xc9
@@ -366,24 +371,48 @@ static void msp_callback(msp_msg_t *msp_message)
 }
 
 /* Font helper methods */
-
-static void get_font_path_with_prefix(char *font_path_dest, const char *font_path, uint8_t len, uint8_t is_hd, uint8_t page) {
+static void get_font_path_with_prefix(char *font_path_dest, const char *font_path, uint8_t len, uint8_t is_hd, uint8_t font_variant, uint8_t page)
+{
     char name_buf[len];
-    if (is_hd) {
-        snprintf(name_buf, len, "%s_hd", font_path);
-    } else {
-        snprintf(name_buf, len, "%s", font_path);
+    char res_buf[4];
+
+    switch (font_variant)
+    {
+        case FONT_VARIANT_BETAFLIGHT:
+            snprintf(name_buf, len, "%s_bf", font_path);
+            break;
+        case FONT_VARIANT_INAV:
+            snprintf(name_buf, len, "%s_inav", font_path);
+            break;
+        case FONT_VARIANT_ARDUPILOT:
+            snprintf(name_buf, len, "%s_ardu", font_path);
+            break;
+        default:
+            snprintf(name_buf, len, "%s", font_path);
     }
-    if (page > 0) {
-        snprintf(font_path_dest, len, "%s_%d.bin", name_buf, page + 1);
-    } else {
-        snprintf(font_path_dest, len, "%s.bin", name_buf);
+
+    if (is_hd)
+    {
+        // surely there's a better way...
+        res_buf[0] = '_';
+        res_buf[1] = 'h';
+        res_buf[2] = 'd';
+    }
+
+    if (page > 0)
+    {
+        snprintf(font_path_dest, len, "%s%s_%d.bin", name_buf, res_buf, page + 1);
+    }
+    else
+    {
+        snprintf(font_path_dest, len, "%s%s.bin", name_buf, res_buf);
     }
 }
 
-static int open_font(const char *filename, void** font, uint8_t page, uint8_t is_hd) {
+static int open_font(const char *filename, void **font, uint8_t page, uint8_t is_hd, uint8_t font_variant)
+{
     char file_path[255];
-    get_font_path_with_prefix(file_path, filename, 255, is_hd, page);
+    get_font_path_with_prefix(file_path, filename, 255, is_hd, font_variant, page);
     printf("Opening font: %s\n", file_path);
     struct stat st;
     memset(&st, 0, sizeof(st));
@@ -418,48 +447,51 @@ static int open_font(const char *filename, void** font, uint8_t page, uint8_t is
 }
 
 static void load_font() {
-    if (open_font(SDCARD_FONT_PATH, &sd_display_info.font_page_1, 0, 0) < 0) {
-        if (open_font(ENTWARE_FONT_PATH, &sd_display_info.font_page_1, 0, 0) < 0) {
-          open_font(FALLBACK_FONT_PATH, &sd_display_info.font_page_1, 0, 0);
-        }
-    }
-    if (open_font(SDCARD_FONT_PATH, &sd_display_info.font_page_2, 1, 0) < 0) {
-        if (open_font(ENTWARE_FONT_PATH, &sd_display_info.font_page_2, 1, 0) < 0) {
-          open_font(FALLBACK_FONT_PATH, &sd_display_info.font_page_2, 1, 0);
-        }
-    }
-    if (open_font(SDCARD_FONT_PATH, &hd_display_info.font_page_1, 0, 1) < 0) {
-        if (open_font(ENTWARE_FONT_PATH, &hd_display_info.font_page_1, 0, 1) < 0) {
-          open_font(FALLBACK_FONT_PATH, &hd_display_info.font_page_1, 0, 1);
-        }
-    }
-    if (open_font(SDCARD_FONT_PATH, &hd_display_info.font_page_2, 1, 1) < 0) {
-        if (open_font(ENTWARE_FONT_PATH, &hd_display_info.font_page_2, 1, 1) < 0) {
-          open_font(FALLBACK_FONT_PATH, &hd_display_info.font_page_2, 1, 1);
-        }
-    }
-    if (open_font(SDCARD_FONT_PATH, &full_display_info.font_page_1, 0, 1) < 0)
-    {
-        if (open_font(ENTWARE_FONT_PATH, &full_display_info.font_page_1, 0, 1) < 0)
+    if (open_font(SDCARD_FONT_PATH, &sd_display_info.font_page_1, 0, 0, FONT_VARIANT_GENERIC) < 0) {
+        if (open_font(ENTWARE_FONT_PATH, &sd_display_info.font_page_1, 0, 0, FONT_VARIANT_GENERIC) < 0)
         {
-            open_font(FALLBACK_FONT_PATH, &full_display_info.font_page_1, 0, 1);
+            open_font(FALLBACK_FONT_PATH, &sd_display_info.font_page_1, 0, 0, FONT_VARIANT_GENERIC);
         }
     }
-    if (open_font(SDCARD_FONT_PATH, &full_display_info.font_page_2, 1, 1) < 0)
+    if (open_font(SDCARD_FONT_PATH, &sd_display_info.font_page_2, 1, 0, FONT_VARIANT_GENERIC) < 0)
     {
-        if (open_font(ENTWARE_FONT_PATH, &full_display_info.font_page_2, 1, 1) < 0)
+        if (open_font(ENTWARE_FONT_PATH, &sd_display_info.font_page_2, 1, 0, FONT_VARIANT_GENERIC) < 0)
         {
-            open_font(FALLBACK_FONT_PATH, &full_display_info.font_page_2, 1, 1);
+            open_font(FALLBACK_FONT_PATH, &sd_display_info.font_page_2, 1, 0, FONT_VARIANT_GENERIC);
         }
     }
-    if (open_font(SDCARD_FONT_PATH, &overlay_display_info.font_page_1, 0, 1) < 0) {
-        if (open_font(ENTWARE_FONT_PATH, &overlay_display_info.font_page_1, 0, 1) < 0) {
-          open_font(FALLBACK_FONT_PATH, &overlay_display_info.font_page_1, 0, 1);
+    if (open_font(SDCARD_FONT_PATH, &hd_display_info.font_page_1, 0, 1, FONT_VARIANT_GENERIC) < 0) {
+        if (open_font(ENTWARE_FONT_PATH, &hd_display_info.font_page_1, 0, 1, FONT_VARIANT_GENERIC) < 0) {
+          open_font(FALLBACK_FONT_PATH, &hd_display_info.font_page_1, 0, 1, FONT_VARIANT_GENERIC);
         }
     }
-    if (open_font(SDCARD_FONT_PATH, &overlay_display_info.font_page_2, 1, 1) < 0) {
-        if (open_font(ENTWARE_FONT_PATH, &overlay_display_info.font_page_2, 1, 1) < 0) {
-          open_font(FALLBACK_FONT_PATH, &overlay_display_info.font_page_2, 1, 1);
+    if (open_font(SDCARD_FONT_PATH, &hd_display_info.font_page_2, 1, 1, FONT_VARIANT_GENERIC) < 0) {
+        if (open_font(ENTWARE_FONT_PATH, &hd_display_info.font_page_2, 1, 1, FONT_VARIANT_GENERIC) < 0) {
+          open_font(FALLBACK_FONT_PATH, &hd_display_info.font_page_2, 1, 1, FONT_VARIANT_GENERIC);
+        }
+    }
+    if (open_font(SDCARD_FONT_PATH, &full_display_info.font_page_1, 0, 1, FONT_VARIANT_BETAFLIGHT) < 0)
+    {
+        if (open_font(ENTWARE_FONT_PATH, &full_display_info.font_page_1, 0, 1, FONT_VARIANT_BETAFLIGHT) < 0)
+        {
+            open_font(FALLBACK_FONT_PATH, &full_display_info.font_page_1, 0, 1, FONT_VARIANT_BETAFLIGHT);
+        }
+    }
+    if (open_font(SDCARD_FONT_PATH, &full_display_info.font_page_2, 1, 1, FONT_VARIANT_BETAFLIGHT) < 0)
+    {
+        if (open_font(ENTWARE_FONT_PATH, &full_display_info.font_page_2, 1, 1, FONT_VARIANT_BETAFLIGHT) < 0)
+        {
+            open_font(FALLBACK_FONT_PATH, &full_display_info.font_page_2, 1, 1, FONT_VARIANT_BETAFLIGHT);
+        }
+    }
+    if (open_font(SDCARD_FONT_PATH, &overlay_display_info.font_page_1, 0, 1, FONT_VARIANT_GENERIC) < 0) {
+        if (open_font(ENTWARE_FONT_PATH, &overlay_display_info.font_page_1, 0, 1, FONT_VARIANT_GENERIC) < 0) {
+          open_font(FALLBACK_FONT_PATH, &overlay_display_info.font_page_1, 0, 1, FONT_VARIANT_GENERIC);
+        }
+    }
+    if (open_font(SDCARD_FONT_PATH, &overlay_display_info.font_page_2, 1, 1, FONT_VARIANT_GENERIC) < 0) {
+        if (open_font(ENTWARE_FONT_PATH, &overlay_display_info.font_page_2, 1, 1, FONT_VARIANT_GENERIC) < 0) {
+          open_font(FALLBACK_FONT_PATH, &overlay_display_info.font_page_2, 1, 1, FONT_VARIANT_GENERIC);
         }
     }
 }
