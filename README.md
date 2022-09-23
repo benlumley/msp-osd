@@ -37,13 +37,13 @@ For betaflight - ensure you set the Video Format to PAL or Auto in the OSD tab -
 
 Betaflight's OSD supports a 30 * 16 Grid, which looks large/blocky when displayed in the DJI Goggles.
 
-Until Betaflight adds support for a larger grid, as a workaround, we have have a mode called "fakehd". It chops up the Betaflight OSD into sections and positions them evenly around an HD grid (with gaps between). Two rows are left unsplit + centered to use for warnings. This then allows use of smaller fonts - so it looks nicer/more in keeping with the built in Goggles OSD (but you still only have 30 columns / 16 rows to configure.... and you have gaps to contend with).
+Until Betaflight adds support for a larger grid, as a workaround, we have have a mode called "FakeHD". It chops up the Betaflight OSD into sections and positions them evenly around an HD grid (with gaps between). Two rows are left unsplit + centered to use for warnings. This then allows use of smaller fonts - so it looks nicer/more in keeping with the built in Goggles OSD (but you still only have 30 columns / 16 rows to configure.... and you have gaps to contend with).
 
 A diagram to help...
 
 | Before (in Configurator) | After (in Goggles) |
 | -------|-------|
-|![Fakehd Before](/docs/img/fakehd_before.png "Before")|![Fakehd After](/docs/img/fakehd_after.png "After")|
+|![FakeHD Before](/docs/img/fakehd_before.png "Before")|![FakeHD After](/docs/img/fakehd_after.png "After")|
 
 ##### To configure/enable:
 
@@ -57,11 +57,18 @@ NB: If you get an error doing the above in the CLI ensure `wtfos-package-config`
 
 No air unit/vista config is required.
 
-##### Notes:
+##### Getting rid of gaps in Menu / Post Flight Stats:
 
-a) In order to have menus (accessible in Betaflight using stick commands) and post-flight stats appear in the center of the screen while using fakehd, you can add the `Timer 2` (more specifically - it's the `Total Armed Time` timer, which is the default for Timer 2 - it needs the "Fly Min" icon in the OSD) to indicate when you are in or out of the menu/stats. Fakehd will find the associated icon (Fly Min glyph) and then use its presence/absence to enable/disable the gaps. If you don't use this element, fakehd will still work; but you will see the gaps in the menus + post flight stats.
+In order to have menus (accessible in Betaflight using stick commands) and post-flight stats appear in the center of the screen while using FakeHD, ensure you have one of the following in your OSD:
 
-b) Because of a, if you switch to a different quad or OSD config (specifically the Fly Min element is in different place), fakehd will center - you will need to reboot your Goggles to get it back.
+ -  `Timer 2` (more specifically - it's the `Total Armed Time` timer, which is the default for Timer 2 - it needs the "Fly Min" icon in the OSD)
+ -  `Throttle position`
+
+FakeHD uses the first of these two it finds to indicate when you are in or out of the menu/stats. FakeHD will find the associated icon from the element and then use its presence/absence to enable/disable the gaps. If you don't use either of these elements, FakeHD will still work; but you will see the gaps in the menus + post flight stats.
+
+If you want to use this feature, but don't want either of these elements to show in the OSD, then add the throttle element to the OSD somewhere, then set `package-config set msp-osd fakehd_hide_throttle_element true` and FakeHD will use the throttle element for switching but not display it on screen.
+
+b) Because of a, if you switch to a different quad or OSD config (specifically the Fly Min element is in different place), FakeHD will center - you will need to reboot your Goggles to get it back.
 
 c) Also because of a, if you are editing OSD in the configurator with the goggles on to preview and you move the Fly Min element around, it will cause the gaps to be disabled and everything to center. The new location of the Fly Min element will be found next time you reboot the goggles and it'll work as normal.
 
@@ -121,6 +128,7 @@ To apply options, type `package-config apply msp-osd`.
 
 ```
 fakehd_enable : enables FakeHD, true/false
+fakehd_hide_throttle_element : FakeHD will hide the throttle element when it is used for gap switching.
 show_au_data : enables AU data overlay on the right, true/false
 show_waiting : enables or disables MSP WAITING message, true/false.
 ```

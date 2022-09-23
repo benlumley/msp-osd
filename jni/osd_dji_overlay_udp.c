@@ -143,19 +143,32 @@ int event_fd;
 /* FakeHD: spread characters for a small OSD across the whole screen */
 
 #define FAKEHD_ENABLE_KEY "fakehd_enable"
+#define FAKEHD_HIDE_THROTTLE_KEY "fakehd_hide_throttle_element"
 static int fakehd_enabled = 0;
+static int fakehd_hide_throttle_element = 0;
 static int fakehd_trigger_x = 99;
 static int fakehd_trigger_y = 99;
 
-static void check_is_fakehd_enabled()
+static void load_fake_hd_config()
 {
-    DEBUG_PRINT("checking for fakehd\n");
+    DEBUG_PRINT("checking for fakehd enabled\n");
     if (get_boolean_config_value(FAKEHD_ENABLE_KEY))
     {
         DEBUG_PRINT("fakehd enabled\n");
         fakehd_enabled = 1;
     } else {
         DEBUG_PRINT("fakehd disabled\n");
+    }
+
+    DEBUG_PRINT("checking for fakehd hide throttle \n");
+    if (get_boolean_config_value(FAKEHD_HIDE_THROTTLE_KEY))
+    {
+        DEBUG_PRINT("fakehd hide throttle\n");
+        fakehd_hide_throttle_element = 1;
+    }
+    else
+    {
+        DEBUG_PRINT("fakehd no hide throttle\n");
     }
 }
 
@@ -170,10 +183,15 @@ static void fakehd_map_sd_character_map_to_hd()
             // skip if it's not a character
             if (msp_character_map[x][y] != 0)
             {
-                // if current element is fly min icon
+                // if current element is fly min or throttle icon
                 // record the current position as the 'trigger' position
                 if (fakehd_trigger_x == 99 &&
-                msp_character_map[x][y] == 0x9c)
+                        (
+                            msp_character_map[x][y] == 0x9c // fly minutes icon (armed time)
+                            ||
+                            msp_character_map[x][y] == 0x04 // throttle icon
+                        )
+                    )
                 {
                     DEBUG_PRINT("found fakehd triggger \n");
                     fakehd_trigger_x = x;
@@ -185,7 +203,8 @@ static void fakehd_map_sd_character_map_to_hd()
                 // timer/battery symbols
                 if (
                     fakehd_trigger_x != 99 &&
-                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c
+                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c &&
+                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x04
                 )
                 {
                     render_x = x + 15;
@@ -223,7 +242,21 @@ static void fakehd_map_sd_character_map_to_hd()
                         render_x += 1;
                     }
                 }
-                msp_render_character_map[render_x][render_y] = msp_character_map[x][y];
+
+                // 0 out the throttle element if configured to do so
+                // and also the three adjacent positions where the thottle percent will be
+                if (fakehd_trigger_x != 99 &&
+                    fakehd_hide_throttle_element &&
+                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] == 0x04)
+                {
+                    msp_render_character_map[render_x][render_y] = 0;
+                    (render_x <= 58) && (msp_render_character_map[render_x+1][render_y] = 0);
+                    (render_x <= 57) && (msp_render_character_map[render_x+2][render_y] = 0);
+                    (render_x <= 56) && (msp_render_character_map[render_x+3][render_y] = 0);
+                } else {
+                    // otherwise, the normal path
+                    msp_render_character_map[render_x][render_y] = msp_character_map[x][y];
+                }
             }
         }
     }
@@ -632,7 +665,7 @@ void osd_enable() {
 
 void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_handle)
 {
-    check_is_fakehd_enabled();
+    load_fake_hd_config();
     check_is_au_overlay_enabled();
 
     uint8_t is_v2_goggles = dji_goggles_are_v2();
