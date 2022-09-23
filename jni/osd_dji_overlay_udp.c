@@ -107,8 +107,8 @@ static display_info_t full_display_info = {
     .char_height = 22,
     .font_width = 24,
     .font_height = 36,
-    .x_offset = 12,
-    .y_offset = 9,
+    .x_offset = 24,
+    .y_offset = 0,
     .font_page_1 = NULL,
     .font_page_2 = NULL,
 };
@@ -233,7 +233,7 @@ static void fakehd_map_sd_character_map_to_hd()
                     }
                     else if (y == 15)
                     {
-                        render_x += 13;
+                        render_x += 11;
                     }
                     else if (x >= 20)
                     {
@@ -371,7 +371,7 @@ static void msp_callback(msp_msg_t *msp_message)
 static void get_font_path_with_prefix(char *font_path_dest, const char *font_path, uint8_t len, uint8_t is_hd, uint8_t font_variant, uint8_t page)
 {
     char name_buf[len];
-    char res_buf[4];
+    char res_buf[len];
 
     switch (font_variant)
     {
@@ -391,9 +391,9 @@ static void get_font_path_with_prefix(char *font_path_dest, const char *font_pat
     if (is_hd)
     {
         // surely there's a better way...
-        res_buf[0] = '_';
-        res_buf[1] = 'h';
-        res_buf[2] = 'd';
+        snprintf(res_buf, len, "%s", "_hd");
+    } else {
+        snprintf(res_buf, len, "%s", "");
     }
 
     if (page > 0)
