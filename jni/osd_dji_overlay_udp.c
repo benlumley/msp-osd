@@ -148,9 +148,11 @@ int event_fd;
 /* FakeHD: spread characters for a small OSD across the whole screen */
 
 #define FAKEHD_ENABLE_KEY "fakehd_enable"
+#define FAKEHD_LOCK_CENTER_KEY "fakehd_lock_center"
 #define FAKEHD_HIDE_THROTTLE_KEY "fakehd_hide_throttle_element"
 static int fakehd_enabled = 0;
 static int fakehd_hide_throttle_element = 0;
+static int fakehd_lock_center = 0;
 static int fakehd_trigger_x = 99;
 static int fakehd_trigger_y = 99;
 
@@ -174,6 +176,16 @@ static void load_fake_hd_config()
     else
     {
         DEBUG_PRINT("fakehd no hide throttle\n");
+    }
+    DEBUG_PRINT("checking for fakehd lock center \n");
+    if (get_boolean_config_value(FAKEHD_LOCK_CENTER_KEY))
+    {
+        DEBUG_PRINT("fakehd lock center\n");
+        fakehd_lock_center = 1;
+    }
+    else
+    {
+        DEBUG_PRINT("fakehd no lock center\n");
     }
 }
 
@@ -207,9 +219,10 @@ static void fakehd_map_sd_character_map_to_hd()
                 // this is intented to center the menu + postflight stats, which don't contain
                 // timer/battery symbols
                 if (
-                    fakehd_trigger_x != 99 &&
+                    fakehd_lock_center ||
+                    (fakehd_trigger_x != 99 &&
                     msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c &&
-                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x04
+                    msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x04)
                 )
                 {
                     render_x = x + 15;
