@@ -72,6 +72,10 @@ Notes:
 
  - Also because of this switching, if you are editing OSD in the configurator with the goggles on to preview and you move the switching element around, it will cause the gaps to be disabled and everything to center. The new location of the switching element will be found next time you reboot the goggles and it'll work as normal.
 
+##### I don't want gaps at all...
+
+Set config `fakehd_lock_center` to true and the center locking used for the menu / post flight stats will be enabled permanently.
+
 ### iNav
 
 On *iNav*, this is done by selecting "HDZero VTx" as the Peripheral. Also select "HD" in the OSD tab. If the iNav OSD appears garbled at first, try entering the iNav menus using the RC sticks, and then exiting the menus. This will force iNav to switch into HD mode a second time.
@@ -129,7 +133,8 @@ To apply options, type `package-config apply msp-osd`.
 
 ```
 fakehd_enable : enables FakeHD, true/false
-fakehd_hide_throttle_element : FakeHD will hide the throttle element when it is used for gap switching.
+fakehd_hide_throttle_element : FakeHD will hide the throttle element when it is used as the gap mode/center mode switch.
+fakehd_lock_center : Lock FakeHD in centered mode.
 show_au_data : enables AU data overlay on the right, true/false
 show_waiting : enables or disables MSP WAITING message, true/false.
 ```
