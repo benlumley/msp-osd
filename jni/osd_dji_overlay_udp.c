@@ -103,11 +103,11 @@ static display_info_t sd_display_info = {
 };
 
 static display_info_t full_display_info = {
-    .char_width = 60,
+    .char_width = 59,
     .char_height = 22,
     .font_width = 24,
     .font_height = 36,
-    .x_offset = 0,
+    .x_offset = 12,
     .y_offset = 9,
     .font_page_1 = NULL,
     .font_page_2 = NULL,
@@ -224,10 +224,6 @@ static void fakehd_map_sd_character_map_to_hd()
                     {
                         render_y += 3;
                     }
-                    // else
-                    // {
-                    //     render_y += 0;
-                    // }
 
                     render_x = x;
                     // a full/unspaced couple of rows for warnings...
@@ -247,10 +243,6 @@ static void fakehd_map_sd_character_map_to_hd()
                     {
                         render_x += 15;
                     }
-                    else
-                    {
-                        render_x += 1;
-                    }
                 }
 
                 // 0 out the throttle element if configured to do so
@@ -260,9 +252,9 @@ static void fakehd_map_sd_character_map_to_hd()
                     msp_character_map[fakehd_trigger_x][fakehd_trigger_y] == 0x04)
                 {
                     msp_render_character_map[render_x][render_y] = 0;
-                    (render_x <= 58) && (msp_render_character_map[render_x+1][render_y] = 0);
-                    (render_x <= 57) && (msp_render_character_map[render_x+2][render_y] = 0);
-                    (render_x <= 56) && (msp_render_character_map[render_x+3][render_y] = 0);
+                    (render_x <= 57) && (msp_render_character_map[render_x+1][render_y] = 0);
+                    (render_x <= 56) && (msp_render_character_map[render_x+2][render_y] = 0);
+                    (render_x <= 55) && (msp_render_character_map[render_x+3][render_y] = 0);
                 } else {
                     // otherwise, the normal path
                     msp_render_character_map[render_x][render_y] = msp_character_map[x][y];
