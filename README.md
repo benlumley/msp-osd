@@ -53,6 +53,8 @@ A diagram to help...
 4. Type/paste `package-config apply msp-osd` and press Enter.
 5. Optionally, place custom fonts in the root of your sd card, using the names `font_bf_hd.bin` / `font_bf_hd_2.bin` (NB: FakeHD no longer uses font_hd.bin / font_hd_2.bin)
 
+Configuration of the grid is also possible; see below.
+
 No air unit/vista config is required.
 
 ##### Getting rid of gaps in Menu / Post Flight Stats:
@@ -79,6 +81,57 @@ Set config `fakehd_lock_center` to true and the center locking used for the menu
 | After/Centered (in Goggles) `fakehd_lock_center` |
 |-------|
 |<img src="/docs/img/fakehd_centered.png" alt="After / Centered"  height=200 /> |
+
+##### Customising the default FakeHD grid.
+
+By default, FakeHD positions your SD grid into the HD grid as per the before/after diagram above.
+
+If this doesn't work for you for whatever reason, some customisation is available. It's necessarily a little complicated - it's necessarily a little complicated.
+
+Each row can be set to one of:
+
+| Code | Description |
+|---|----|
+| L | Left aligned, the SD row occupies cell 1-30, no gaps |
+| C | Center aligned, the SD row occupies cell 16-45, no gaps |
+| R | Right aligned, , the SD row occupies cell 29-59, no gaps |
+| W | Split A - Row is split in 3, the FakeHD default, filling cells 1-10, 26-35, 44-59 |
+| T | Split B - Row is split in 2, touching the sides - filling cells 1-15 + 45-59 |
+| F | Split C - Row is split in 2 and away from the sides - filling cells 11-25 + 36-49 |
+| D | DJI Special - Row is centered but pushed a little left; used to posiution the bottom row between the existing DJI OSD elements |
+
+<img src="/docs/img/fakehd_rows.png" alt="Columns"  height=200 />
+
+And then the columns as a whole can be set to one of:
+
+| Code | Description |
+|---|----|
+| T | Top aligned, OSD occupies rows 1-16  |
+| M | Center aligned, OSD occupies cells 4-19, no gaps |
+| B | Bottom aligned, , the OSD occupies rows 7-22 |
+| S | Split - FakeHD default - split in 3, OSD occupies rows 1 - 5, 9 - 13, 17-22 |
+
+Using the default row config; here's what they all look like:
+
+| T | M | B | S |
+| - | - | - | - |
+|<img src="/docs/img/fakehd_columns_t.png" alt="T" />|<img src="/docs/img/fakehd_columns_m.png" alt="M" />| <img src="/docs/img/fakehd_columns_b.png" alt="B" />| <img src="/docs/img/fakehd_after.png" alt="S" />|
+
+###### To configure rows
+
+Rows config accepts a 16 character long string; each character configuring it's corresponding row. The default FakeHD config would be set like this:
+
+`package-config set msp-osd fakehd_rows WWWWWWCCWWWWWWWD`
+
+The characters are case sensitive, but the configurator will reject invalid characters.
+
+###### To configure columns
+
+Columns accepts a single character configuring how the whole grid is aligned. The default would be set like this:
+
+`package-config set msp-osd fakehd_columns S`
+
+The characters are case sensitive, but the configurator will reject invalid characters.
 
 ### INAV
 
