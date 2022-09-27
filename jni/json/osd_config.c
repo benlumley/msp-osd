@@ -22,3 +22,18 @@ int get_boolean_config_value(const char* key) {
         return 0;
     }
 }
+
+const char * get_string_config_value(const char *key)
+{
+    load_config();
+    if (root_object != NULL)
+    {
+        // parson returns -1 for undefined keys, which can happen when
+        // new keys are defined - ensure they come back as false
+        return json_object_get_string(root_object, key);
+    }
+    else
+    {
+        return NULL;
+    }
+}
