@@ -66,20 +66,24 @@ void load_fakehd_config()
     const char *trigger = get_string_config_value(FAKEHD_MENU_TRIGGER_CHAR_KEY);
     if (trigger)
     {
+        DEBUG_PRINT("fakehd found custom trigger\n");
         fakehd_menu_trigger_char = (unsigned char)strtol(trigger, NULL, 16);
     }
     // trigger
     // rows
     const char * rows = get_string_config_value(FAKEHD_ROWS_KEY);
     if (rows) {
+        DEBUG_PRINT("fakehd found custom row conf\n");
         memcpy(fakehd_rows, rows, INPUT_COLS);
     }
 
     const char * cols = get_string_config_value(FAKEHD_COLUMNS_KEY);
     if (cols)
     {
+        DEBUG_PRINT("fakehd found col conf\n");
         fakehd_columns = cols[0];
     }
+    DEBUG_PRINT("fakehd finished config init\n");
 }
 
 static void fakehd_get_column_config(int cols[INPUT_ROWS])
@@ -87,17 +91,17 @@ static void fakehd_get_column_config(int cols[INPUT_ROWS])
     switch (fakehd_columns)
     {
     case 'T':
-        memcpy(cols, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, INPUT_ROWS);
+        memcpy(cols, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, sizeof(cols[0]) * INPUT_ROWS);
         break;
     case 'M':
-        memcpy(cols, (int[]){3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}, INPUT_ROWS);
+        memcpy(cols, (int[]){3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}, sizeof(cols[0]) * INPUT_ROWS);
         break;
     case 'B':
-        memcpy(cols, (int[]){6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}, INPUT_ROWS);
+        memcpy(cols, (int[]){6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}, sizeof(cols[0]) * INPUT_ROWS);
         break;
     case 'S':
     default:
-        memcpy(cols, (int[]){0, 1, 2, 3, 4, 8, 9, 10, 11, 12, 16, 17, 18, 19, 20, 21}, INPUT_ROWS);
+        memcpy(cols, (int[]){0, 1, 2, 3, 4, 8, 9, 10, 11, 12, 16, 17, 18, 19, 20, 21}, sizeof(cols[0]) * INPUT_ROWS);
         break;
     }
 
@@ -112,26 +116,26 @@ static void fakehd_get_row_config(int rownum, int row[INPUT_COLS])
     switch (rowmode)
     {
     case 'L':
-        memcpy(row, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, INPUT_COLS);
+        memcpy(row, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}, sizeof(row[0]) * INPUT_COLS);
         break;
     case 'C':
-        memcpy(row, (int[]){15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}, INPUT_COLS);
+        memcpy(row, (int[]){15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}, sizeof(row[0]) * INPUT_COLS);
         break;
     case 'R':
-        memcpy(row, (int[]){29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58}, INPUT_COLS);
+        memcpy(row, (int[]){29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58}, sizeof(row[0]) * INPUT_COLS);
         break;
     case 'T':
-        memcpy(row, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58}, INPUT_COLS);
+        memcpy(row, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58}, sizeof(row[0]) * INPUT_COLS);
         break;
     case 'F':
-        memcpy(row, (int[]){10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49}, INPUT_COLS);
+        memcpy(row, (int[]){10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49}, sizeof(row[0]) * INPUT_COLS);
         break;
     case 'D':
-        memcpy(row, (int[]){11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40}, INPUT_COLS);
+        memcpy(row, (int[]){11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40}, sizeof(row[0]) * INPUT_COLS);
         break;
     case 'W':
     default:
-        memcpy(row, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58}, INPUT_COLS);
+        memcpy(row, (int[]){0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58}, sizeof(row[0]) * INPUT_COLS);
         break;
     }
 
@@ -148,7 +152,7 @@ void fakehd_reset() {
     int fakehd_trigger_y = 99;
 }
 
-void fakehd_map_sd_character_map_to_hd(uint16_t **msp_character_map, uint16_t **msp_render_character_map)
+void fakehd_map_sd_character_map_to_hd(uint16_t sd_character_map[60][22], uint16_t hd_character_map[60][22])
 {
     int row[INPUT_COLS];
     int col[INPUT_ROWS];
@@ -163,19 +167,19 @@ void fakehd_map_sd_character_map_to_hd(uint16_t **msp_character_map, uint16_t **
         for (int x = INPUT_COLS-1; x >= 0; x--)
         {
             // to visualise the layout better in dev
-            // if (msp_character_map[x][y] == 0) {
-            //     msp_character_map[x][y] = 0x30 + (x % 100);
+            // if (sd_character_map[x][y] == 0) {
+            //     sd_character_map[x][y] = 0x30 + (x % 10);
             // }
 
             // skip if it's not a character
-            if (msp_character_map[x][y] != 0)
+            if (sd_character_map[x][y] != 0)
             {
                 // if current element is fly min or throttle icon
                 // record the current position as the 'trigger' position
                 if (fakehd_trigger_x == 99 &&
-                    (msp_character_map[x][y] == 0x9c // fly minutes icon (armed time)
+                    (sd_character_map[x][y] == 0x9c // fly minutes icon (armed time)
                      ||
-                     msp_character_map[x][y] == fakehd_menu_trigger_char
+                     sd_character_map[x][y] == fakehd_menu_trigger_char
                      ))
                 {
                     DEBUG_PRINT("found fakehd triggger \n");
@@ -189,8 +193,8 @@ void fakehd_map_sd_character_map_to_hd(uint16_t **msp_character_map, uint16_t **
                 if (
                     fakehd_lock_center ||
                     (fakehd_trigger_x != 99 &&
-                     msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c &&
-                     msp_character_map[fakehd_trigger_x][fakehd_trigger_y] != fakehd_menu_trigger_char))
+                     sd_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c &&
+                     sd_character_map[fakehd_trigger_x][fakehd_trigger_y] != fakehd_menu_trigger_char))
                 {
                     render_x = x + 15;
                     render_y = y + 3;
@@ -199,51 +203,22 @@ void fakehd_map_sd_character_map_to_hd(uint16_t **msp_character_map, uint16_t **
                 {
                     render_y = col[y];
                     render_x = row[x];
-                    // if (y >= 10)
-                    // {
-                    //     render_y += 6;
-                    // }
-                    // else if (y >= 5)
-                    // {
-                    //     render_y += 3;
-                    // }
-
-                    // render_x = x;
-                    // // a full/unspaced couple of rows for warnings...
-                    // // and the bottom row may as well be as the edges just overlap the DJI built in bits
-                    // if (y == 6 || y == 7)
-                    // {
-                    //     render_x += 15;
-                    // }
-                    // else if (y == 15)
-                    // {
-                    //     render_x += 11;
-                    // }
-                    // else if (x >= 20)
-                    // {
-                    //     render_x += 29;
-                    // }
-                    // else if (x >= 10)
-                    // {
-                    //     render_x += 15;
-                    // }
                 }
-
                 // 0 out the throttle element if configured to do so
                 // and also the three adjacent positions where the thottle percent will be
                 if (fakehd_trigger_x != 99 &&
                     fakehd_hide_throttle_element &&
-                    msp_character_map[x][y] == fakehd_menu_trigger_char)
+                    sd_character_map[x][y] == fakehd_menu_trigger_char)
                 {
-                    msp_render_character_map[render_x][render_y] = 0;
-                    (render_x <= 57) && (msp_render_character_map[render_x + 1][render_y] = 0);
-                    (render_x <= 56) && (msp_render_character_map[render_x + 2][render_y] = 0);
-                    (render_x <= 55) && (msp_render_character_map[render_x + 3][render_y] = 0);
+                    hd_character_map[render_x][render_y] = 0;
+                    (render_x <= 57) && (hd_character_map[render_x + 1][render_y] = 0);
+                    (render_x <= 56) && (hd_character_map[render_x + 2][render_y] = 0);
+                    (render_x <= 55) && (hd_character_map[render_x + 3][render_y] = 0);
                 }
                 else
                 {
                     // otherwise, the normal path
-                    msp_render_character_map[render_x][render_y] = msp_character_map[x][y];
+                    hd_character_map[render_x][render_y] = sd_character_map[x][y];
                 }
             }
         }

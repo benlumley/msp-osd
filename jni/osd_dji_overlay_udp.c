@@ -216,7 +216,7 @@ static void draw_screen() {
     memset(fb_addr, 0x000000FF, WIDTH * HEIGHT * BYTES_PER_PIXEL);
 
     if (fakehd_enabled) {
-        fakehd_map_sd_character_map_to_hd(msp_character_map, &msp_render_character_map);
+        fakehd_map_sd_character_map_to_hd(msp_character_map, msp_render_character_map);
         draw_character_map(current_display_info, fb_addr, msp_render_character_map);
     } else {
         draw_character_map(current_display_info, fb_addr, msp_character_map);
