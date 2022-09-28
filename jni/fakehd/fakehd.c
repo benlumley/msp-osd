@@ -228,6 +228,7 @@ void fakehd_map_sd_character_map_to_hd(uint16_t sd_character_map[60][22], uint16
                     (render_x <= 57) && (hd_character_map[render_x + 1][render_y] = 0);
                     (render_x <= 56) && (hd_character_map[render_x + 2][render_y] = 0);
                     (render_x <= 55) && (hd_character_map[render_x + 3][render_y] = 0);
+                    (render_x <= 54) && (hd_character_map[render_x + 4][render_y] = 0);
                 }
                 else
                 {
