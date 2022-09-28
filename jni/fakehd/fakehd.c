@@ -6,8 +6,10 @@
 
 #define FAKEHD_ENABLE_KEY "fakehd_enable"
 #define FAKEHD_LOCK_CENTER_KEY "fakehd_lock_center"
-#define FAKEHD_HIDE_THROTTLE_KEY "fakehd_hide_throttle_element"
-#define FAKEHD_MENU_TRIGGER_CHAR_KEY "fakehd_menu_trigger"
+#define FAKEHD_HIDE_THROTTLE_KEY "fakehd_hide_throttle_element" // for compat
+#define FAKEHD_MENU_SWITCH_KEY "fakehd_menu_switch"
+#define FAKEHD_HIDE_MENU_SWITCH_KEY "fakehd_hide_menu_switch" // for compat
+#define FAKEHD_LAYOUT_DEBUG_KEY "fakehd_layout_debug"
 #define FAKEHD_COLUMNS_KEY "fakehd_columns"
 #define FAKEHD_ROWS_KEY "fakehd_rows"
 
@@ -15,9 +17,10 @@
 #define INPUT_COLS 30
 
 int fakehd_enabled = 0;
-static int fakehd_hide_throttle_element = 0;
+static int fakehd_hide_menu_switch = 0;
 static int fakehd_lock_center = 0;
-static int fakehd_menu_trigger_char = 0x04; // betaflight throttle icon
+static int fakehd_layout_debug = 0;
+static int fakehd_menu_switch_char = 4; // betaflight throttle icon
 static int fakehd_trigger_x = 99;
 static int fakehd_trigger_y = 99;
 static char fakehd_columns = 'S';
@@ -42,11 +45,22 @@ void load_fakehd_config()
         DEBUG_PRINT("fakehd disabled\n");
     }
 
+    DEBUG_PRINT("checking for fakehd layout debug\n");
+    if (get_boolean_config_value(FAKEHD_LAYOUT_DEBUG_KEY))
+    {
+        DEBUG_PRINT("fakehd layout debug\n");
+        fakehd_layout_debug = 1;
+    }
+    else
+    {
+        DEBUG_PRINT("fakehd layout debug off\n");
+    }
+
     DEBUG_PRINT("checking for fakehd hide throttle \n");
-    if (get_boolean_config_value(FAKEHD_HIDE_THROTTLE_KEY))
+    if (get_boolean_config_value(FAKEHD_HIDE_MENU_SWITCH_KEY) || get_boolean_config_value(FAKEHD_HIDE_THROTTLE_KEY))
     {
         DEBUG_PRINT("fakehd hide throttle\n");
-        fakehd_hide_throttle_element = 1;
+        fakehd_hide_menu_switch = 1;
     }
     else
     {
@@ -63,11 +77,11 @@ void load_fakehd_config()
         DEBUG_PRINT("fakehd no lock center\n");
     }
 
-    const char *trigger = get_string_config_value(FAKEHD_MENU_TRIGGER_CHAR_KEY);
+    const char *trigger = get_string_config_value(FAKEHD_MENU_SWITCH_KEY);
     if (trigger)
     {
         DEBUG_PRINT("fakehd found custom trigger\n");
-        fakehd_menu_trigger_char = (unsigned char)strtol(trigger, NULL, 16);
+        fakehd_menu_switch_char = (int)strtol(trigger, (char **)NULL, 10);
     }
     // trigger
     // rows
@@ -167,9 +181,9 @@ void fakehd_map_sd_character_map_to_hd(uint16_t sd_character_map[60][22], uint16
         for (int x = INPUT_COLS-1; x >= 0; x--)
         {
             // to visualise the layout better in dev
-            // if (sd_character_map[x][y] == 0) {
-            //     sd_character_map[x][y] = 0x30 + (x % 10);
-            // }
+            if (fakehd_layout_debug && sd_character_map[x][y] == 0) {
+                sd_character_map[x][y] = 48 + (x % 10);
+            }
 
             // skip if it's not a character
             if (sd_character_map[x][y] != 0)
@@ -179,7 +193,7 @@ void fakehd_map_sd_character_map_to_hd(uint16_t sd_character_map[60][22], uint16
                 if (fakehd_trigger_x == 99 &&
                     (sd_character_map[x][y] == 0x9c // fly minutes icon (armed time)
                      ||
-                     sd_character_map[x][y] == fakehd_menu_trigger_char
+                     sd_character_map[x][y] == fakehd_menu_switch_char
                      ))
                 {
                     DEBUG_PRINT("found fakehd triggger \n");
@@ -194,7 +208,7 @@ void fakehd_map_sd_character_map_to_hd(uint16_t sd_character_map[60][22], uint16
                     fakehd_lock_center ||
                     (fakehd_trigger_x != 99 &&
                      sd_character_map[fakehd_trigger_x][fakehd_trigger_y] != 0x9c &&
-                     sd_character_map[fakehd_trigger_x][fakehd_trigger_y] != fakehd_menu_trigger_char))
+                     sd_character_map[fakehd_trigger_x][fakehd_trigger_y] != fakehd_menu_switch_char))
                 {
                     render_x = x + 15;
                     render_y = y + 3;
@@ -207,8 +221,8 @@ void fakehd_map_sd_character_map_to_hd(uint16_t sd_character_map[60][22], uint16
                 // 0 out the throttle element if configured to do so
                 // and also the three adjacent positions where the thottle percent will be
                 if (fakehd_trigger_x != 99 &&
-                    fakehd_hide_throttle_element &&
-                    sd_character_map[x][y] == fakehd_menu_trigger_char)
+                    fakehd_hide_menu_switch &&
+                    sd_character_map[x][y] == fakehd_menu_switch_char)
                 {
                     hd_character_map[render_x][render_y] = 0;
                     (render_x <= 57) && (hd_character_map[render_x + 1][render_y] = 0);
