@@ -57,7 +57,7 @@ void load_fakehd_config()
     }
 
     DEBUG_PRINT("checking for fakehd hide throttle \n");
-    if (get_boolean_config_value(FAKEHD_HIDE_MENU_SWITCH_KEY) || get_boolean_config_value(FAKEHD_HIDE_THROTTLE_KEY))
+    if (get_boolean_config_value(FAKEHD_HIDE_MENU_SWITCH_KEY))
     {
         DEBUG_PRINT("fakehd hide throttle\n");
         fakehd_hide_menu_switch = 1;
