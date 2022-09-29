@@ -53,8 +53,6 @@ A diagram to help...
 4. Type/paste `package-config apply msp-osd` and press Enter.
 5. Optionally, place custom fonts in the root of your sd card, using the names `font_bf_hd.bin` / `font_bf_hd_2.bin` (NB: FakeHD no longer uses font_hd.bin / font_hd_2.bin)
 
-https://github.com/betaflight/betaflight/blob/master/docs/osd.md
-
 Configuration of the grid is also possible; see below.
 
 No air unit/vista config is required.
@@ -69,7 +67,8 @@ By default, the `Throttle Position` icon is used (character 4) - but you can set
 
 Betaflight has a list here: https://github.com/betaflight/betaflight/blob/master/docs/osd.md
 
-If you want to use FakeHD with some other Flight Controller, you will need to find an appropriate icon. (Let us know - we can include the information here)
+
+If you want to use FakeHD with some other Flight Controller, you will need to find an appropriate icon. (Let us know - we can include the information here).
 
 Finally, if you don't have anything in your OSD that works for menu switching, you can hide the menu switching character and the subsequent 5 characters, allowing you to add the `Throttle Position` element but not have to see it on screen. This is enabled by setting `fakehd_hide_menu_switch` to true.
 

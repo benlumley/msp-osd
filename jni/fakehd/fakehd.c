@@ -77,11 +77,11 @@ void load_fakehd_config()
         DEBUG_PRINT("fakehd no lock center\n");
     }
 
-    const char *trigger = get_string_config_value(FAKEHD_MENU_SWITCH_KEY);
+    int trigger = get_integer_config_value(FAKEHD_MENU_SWITCH_KEY);
     if (trigger)
     {
         DEBUG_PRINT("fakehd found custom trigger\n");
-        fakehd_menu_switch_char = (int)strtol(trigger, (char **)NULL, 10);
+        fakehd_menu_switch_char = trigger;
     }
     // trigger
     // rows
