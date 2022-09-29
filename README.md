@@ -91,7 +91,7 @@ Set config `fakehd_lock_center` to true and the center locking used for the menu
 
 By default, FakeHD positions your SD grid into the HD grid as per the before/after diagram above.
 
-If this doesn't work for you for whatever reason, some customisation is available. It's necessarily a little complicated - it's necessarily a little complicated.
+If this doesn't work for you for whatever reason, some customisation is available. It's necessarily a little complicated.
 
 Each row can be set to one of:
 
@@ -155,6 +155,8 @@ and optionally
 
 `MSP_OPTIONS = 4` to allow the use of a Betaflight font.
 
+More info: https://ardupilot.org/plane/docs/common-msp-osd-overview-4.2.html#dji-goggles-with-wtf-osd-firmware
+
 ### KISS Ultra
 
 Select MSP on serial and select DJI WTF as canvas dialect. Thats it.
@@ -174,6 +176,14 @@ Select MSP on serial and select DJI WTF as canvas dialect. Thats it.
 | INAV       | `font_inav.bin`, `font_inav_2.bin` | `font_inav_hd.bin`, `font_inav_hd_2.bin`
 | Ardupilot       | `font_ardu.bin`, `font_ardu_2.bin` | `font_ardu_hd.bin`, `font_ardu_hd_2.bin`
 | KISS Ultra       | `font_ultra.bin`, `font_ultra_2.bin` | `font_ultra_hd.bin`, `font_ultra_hd_2.bin`
+
+### Suggested Third Party Fonts
+
+Nicer/more modern looking ones:
+
+KNIFA / Material - https://github.com/Knifa/material-osd / https://github.com/Knifa/material-osd/releases
+Shannon Baker - https://drive.google.com/drive/folders/1buxrXqhU46AxE3fwaFDsMb97IiGLVa95
+
 ### Generate your own Font (advanced)
 
 * Download [mcm2img](https://github.com/bri3d/mcm2img) and set up a working Python environment to run it.
