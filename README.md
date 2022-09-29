@@ -164,7 +164,7 @@ Select MSP on serial and select DJI WTF as canvas dialect. Thats it.
 ## Choose a Font
 
 * Download the latest fonts package from https://github.com/bri3d/mcm2img/releases/download/latest/mcm2img-fonts.tar.gz .
-* Rename the files for your desired font to `font_<fc variant>` - see table below for examples or take a look at the `fonts` directory for a template for how the file names should look.
+* Rename the files for your desired font to `font_<fc variant>` - see table below for examples or take a look at the `fonts` directory for a template for how the file names should look. (If your FC firmware is not listed below, use the generic filenames)
 * Place these four files on the root of your Goggles SD card.
 * Reboot.
 
@@ -173,16 +173,17 @@ Select MSP on serial and select DJI WTF as canvas dialect. Thats it.
 | Flight controller | SD | HD |
 | ----------------- | -- | -- |
 | Betaflight       | `font_bf.bin`, `font_bf_2.bin` | `font_bf_hd.bin`, `font_bf_hd_2.bin` |
-| INAV       | `font_inav.bin`, `font_inav_2.bin` | `font_inav_hd.bin`, `font_inav_hd_2.bin`
-| Ardupilot       | `font_ardu.bin`, `font_ardu_2.bin` | `font_ardu_hd.bin`, `font_ardu_hd_2.bin`
-| KISS Ultra       | `font_ultra.bin`, `font_ultra_2.bin` | `font_ultra_hd.bin`, `font_ultra_hd_2.bin`
+| INAV       | `font_inav.bin`, `font_inav_2.bin` | `font_inav_hd.bin`, `font_inav_hd_2.bin`|
+| Ardupilot       | `font_ardu.bin`, `font_ardu_2.bin` | `font_ardu_hd.bin`, `font_ardu_hd_2.bin`|
+| KISS Ultra       | `font_ultra.bin`, `font_ultra_2.bin` | `font_ultra_hd.bin`, `font_ultra_hd_2.bin`|
+| Generic/Fallback       | `font_ultra.bin`, `font_ultra_2.bin` | `font_ultra_hd.bin`, `font_ultra_hd_2.bin`|
 
 ### Suggested Third Party Fonts
 
 Nicer/more modern looking ones:
 
-KNIFA / Material - https://github.com/Knifa/material-osd / https://github.com/Knifa/material-osd/releases
-Shannon Baker - https://drive.google.com/drive/folders/1buxrXqhU46AxE3fwaFDsMb97IiGLVa95
+ - KNIFA / Material - https://github.com/Knifa/material-osd / https://github.com/Knifa/material-osd/releases
+ - Shannon Baker - https://drive.google.com/drive/folders/1buxrXqhU46AxE3fwaFDsMb97IiGLVa95
 
 ### Generate your own Font (advanced)
 
