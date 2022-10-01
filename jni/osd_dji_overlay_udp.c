@@ -215,7 +215,7 @@ static void draw_screen() {
     // DJI has a backwards alpha channel - FF is transparent, 00 is opaque.
     memset(fb_addr, 0x000000FF, WIDTH * HEIGHT * BYTES_PER_PIXEL);
 
-    if (fakehd_enabled) {
+    if (fakehd_is_enabled()) {
         fakehd_map_sd_character_map_to_hd(msp_character_map, msp_render_character_map);
         draw_character_map(current_display_info, fb_addr, msp_render_character_map);
     } else {
@@ -391,7 +391,7 @@ static void close_all_fonts() {
 static void msp_set_options(uint8_t font_num, uint8_t is_hd) {
     msp_clear_screen();
     if(is_hd) {
-        fakehd_enabled = 0;
+        fakehd_disable();
         current_display_info = &hd_display_info;
     } else {
         current_display_info = &sd_display_info;
@@ -598,7 +598,7 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
     uint8_t is_v2_goggles = dji_goggles_are_v2();
     DEBUG_PRINT("Detected DJI goggles %s\n", is_v2_goggles ? "V2" : "V1");
 
-    if (fakehd_enabled) {
+    if (fakehd_is_enabled()){
         current_display_info = &fakehd_display_info;
     } else {
         current_display_info = &sd_display_info;
