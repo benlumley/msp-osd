@@ -404,10 +404,11 @@ static void close_all_fonts() {
 static void msp_set_options(uint8_t font_num, uint8_t is_hd) {
     msp_clear_screen();
     switch (is_hd) {
-        case 2:
+        case 3:
             fakehd_enabled = 0;
             current_display_info = &fakehd_display_info;
             break;
+        case 2:
         case 1:
             fakehd_enabled = 0;
             current_display_info = &hd_display_info;
