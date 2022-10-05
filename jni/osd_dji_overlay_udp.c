@@ -711,8 +711,12 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
         poll_fds[2].fd = data_socket_fd;
         poll_fds[2].events = POLLIN;
 
-        // is infinite timeout change to 3s ok?
-        poll(poll_fds, 3, 3000);
+        // wait 500ms for data; then do an update anyway
+        // needed for toast and au data without FC
+        poll(poll_fds, 3, 500);
+
+        // lets toast run + update any notices
+        do_toast(display_print_string);
 
         if(poll_fds[0].revents) {
             // Got MSP UDP packet
@@ -743,11 +747,10 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
                 } else {
                     display_mode = DISPLAY_DISABLED;
                 }
-                render_screen();
             }
         }
-        do_toast(display_print_string);
-        msp_draw_complete();
+
+        render_screen();
     }
 
     free(display_driver);
