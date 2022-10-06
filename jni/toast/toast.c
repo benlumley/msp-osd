@@ -24,7 +24,7 @@ typedef struct ToastItem
 ToastItem *bottomStackPointer = NULL;
 ToastItem *topStackPointer = NULL;
 
-struct timespec now, lasttoast;
+struct timespec now, lasttoastremoval;
 
 
 int toast_pop()
@@ -53,13 +53,11 @@ int toast(char *data, ...)
     va_list va;
     va_start(va, data);
     char copy[DATASIZE];
-    printf("toast: %s\n", data);
     vsnprintf(copy, DATASIZE, data, va);
-    printf("toast: %s\n", copy);
+
     // our fonts are caps only....
     for (int i = 0; copy[i]; i++)
     {
-        printf("%c\n", copy[i]);
         copy[i] = toupper(copy[i]);
     }
 
@@ -67,7 +65,7 @@ int toast(char *data, ...)
     TempPointer->shown = (struct timespec){0, 0};
     TempPointer->nextNode = NULL;
     if (bottomStackPointer == NULL)
-        TempPointer = bottomStackPointer = TempPointer;
+        bottomStackPointer = TempPointer;
     else
         topStackPointer->nextNode = TempPointer;
     topStackPointer = TempPointer;
@@ -81,39 +79,40 @@ void do_toast(void (*display_print_string)(uint8_t init_x, uint8_t y, const char
 
     clock_gettime(CLOCK_MONOTONIC, &now);
 
-    // only process/update 1ce per second
-    if (timespec_subtract_ns(&now, &lasttoast) > NSEC_PER_SEC)
+    // if the last item has been up 3 seconds; chop it
+    // but only remove 1 per second
+    ToastItem *TempPointer = bottomStackPointer;
+    if (
+        timespec_subtract_ns(&now, &lasttoastremoval) > NSEC_PER_SEC                      // 1ce per second limit
+        && TempPointer != NULL && TempPointer->shown.tv_sec > 0                           // guards
+        && timespec_subtract_ns(&now, &TempPointer->shown) > ((uint64_t)NSEC_PER_SEC * 3) // item has been on screen for long enough
+    )
     {
-        clock_gettime(CLOCK_MONOTONIC, &lasttoast);
-
-        // if the last item has been up 3 seconds; chop it
-        ToastItem *TempPointer = bottomStackPointer;
-        if (TempPointer != NULL && TempPointer->shown.tv_sec > 0 && timespec_subtract_ns(&now, &TempPointer->shown) > ((uint8_t)NSEC_PER_SEC * 3))
-        {
-            TempPointer = TempPointer->nextNode;
-            toast_pop();
-        }
-
-        // loop and display
-        for (int row = BOTTOM_ROW; row >= TOP_ROW; row--)
-        {
-            // if we ran out of items blank out the rest of our rows
-            if (TempPointer == NULL) {
-                char empty[DATASIZE] = {0};
-                display_print_string(0, row, empty, DATASIZE);
-            } else {
-
-                // set shown time if not set (ie: item not yet shown)
-                if (TempPointer->shown.tv_sec == 0)
-                {
-                    clock_gettime(CLOCK_MONOTONIC, &TempPointer->shown);
-                }
-
-                // draw the current item in the current row
-                display_print_string(0, row, TempPointer->data, DATASIZE);
-                TempPointer = TempPointer->nextNode;
-            }
-        };
+        clock_gettime(CLOCK_MONOTONIC, &lasttoastremoval);
+        TempPointer = TempPointer->nextNode;
+        toast_pop();
     }
+
+    // loop and display
+    for (int row = BOTTOM_ROW; row >= TOP_ROW; row--)
+    {
+        // if we ran out of items blank out the rest of our rows
+        if (TempPointer == NULL) {
+            char empty[DATASIZE] = {0};
+            display_print_string(0, row, empty, DATASIZE);
+        } else {
+
+            // set shown time if not set (ie: item not yet shown)
+            if (TempPointer->shown.tv_sec == 0)
+            {
+                clock_gettime(CLOCK_MONOTONIC, &TempPointer->shown);
+            }
+
+            // draw the current item in the current row
+            display_print_string(0, row, TempPointer->data, DATASIZE);
+            TempPointer = TempPointer->nextNode;
+        }
+    };
+
     return;
 }

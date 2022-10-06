@@ -425,7 +425,6 @@ static void msp_set_options(uint8_t font_num, uint8_t is_hd) {
 }
 
 static void display_print_string(uint8_t init_x, uint8_t y, const char *string, uint8_t len) {
-    printf("display_print_string: %s\n", string);
     for(uint8_t x = 0; x < len; x++) {
         draw_character(&overlay_display_info, overlay_character_map, x + init_x, y, string[x]);
     }
@@ -715,9 +714,6 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
         // needed for toast and au data without FC
         poll(poll_fds, 3, 500);
 
-        // lets toast run + update any notices
-        do_toast(display_print_string);
-
         if(poll_fds[0].revents) {
             // Got MSP UDP packet
             if (0 < (recv_len = recvfrom(msp_socket_fd,&buffer,sizeof(buffer),0,(struct sockaddr*)&src_addr,&src_addr_len)))
@@ -749,6 +745,8 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
                 }
             }
         }
+        // lets toast run + update any notices
+        do_toast(display_print_string);
 
         render_screen();
     }
