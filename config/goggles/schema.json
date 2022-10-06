@@ -48,7 +48,11 @@
 			"pattern": "[LCRWTFD]{16}",
 			"minLength": 16,
 			"maxLength": 16
-		}
+		},
+        "hide_diagnostics": {
+            "name": "Hide diagnostic information",
+            "widget": "checkbox"
+        }
 	},
 	"units": [
 		"msp-osd-goggles"
