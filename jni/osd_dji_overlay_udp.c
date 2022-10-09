@@ -713,7 +713,7 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
 
         // wait 500ms for data; then do an update anyway
         // needed for toast and au data without FC
-        poll(poll_fds, 3, 500);
+        poll(poll_fds, 3, -1);
 
         if(poll_fds[0].revents) {
             // Got MSP UDP packet
