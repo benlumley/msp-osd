@@ -92,6 +92,7 @@ static uint8_t font_variant_from_string(char *variant_string);
 
 static volatile sig_atomic_t quit = 0;
 static dji_display_state_t *dji_display;
+static uint16_t shadow_character_map[MAX_DISPLAY_X][MAX_DISPLAY_Y];
 static uint16_t msp_character_map[MAX_DISPLAY_X][MAX_DISPLAY_Y];
 static uint16_t msp_render_character_map[MAX_DISPLAY_X][MAX_DISPLAY_Y];
 static uint16_t overlay_character_map[MAX_DISPLAY_X][MAX_DISPLAY_Y];
@@ -163,7 +164,7 @@ static void draw_character(display_info_t *display_info, uint16_t character_map[
 }
 
 static void msp_draw_character(uint32_t x, uint32_t y, uint16_t c) {
-    draw_character(current_display_info, msp_character_map, x, y, c);
+    draw_character(current_display_info, shadow_character_map, x, y, c);
 }
 
 /* Main rendering function: take a character_map and a display_info and draw it into a framebuffer */
@@ -219,7 +220,6 @@ static void draw_screen() {
     memset(fb_addr, 0x000000FF, WIDTH * HEIGHT * BYTES_PER_PIXEL);
 
     if (fakehd_is_enabled()) {
-        fakehd_map_sd_character_map_to_hd(msp_character_map, msp_render_character_map);
         draw_character_map(current_display_info, fb_addr, msp_render_character_map);
     } else {
         draw_character_map(current_display_info, fb_addr, msp_character_map);
@@ -247,7 +247,11 @@ static void render_screen() {
 }
 
 static void msp_draw_complete() {
-    render_screen();
+    // copy shadow map to main map
+    memcpy(msp_character_map, shadow_character_map, sizeof(msp_character_map));
+    if (fakehd_is_enabled()) {
+        fakehd_map_sd_character_map_to_hd(msp_character_map, msp_render_character_map);
+    }
 
     if (rec_is_enabled()) {
         rec_msp_draw_complete_hook();
