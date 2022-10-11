@@ -744,12 +744,12 @@ void osd_directfb(duss_disp_instance_handle_t *disp, duss_hal_obj_handle_t ion_h
                 } else {
                     display_mode = DISPLAY_DISABLED;
                 }
+                render_screen();
             }
         }
         // lets toast run + update any notices
         do_toast(display_print_string);
 
-        render_screen();
     }
 
     free(display_driver);
