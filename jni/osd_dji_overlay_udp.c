@@ -15,6 +15,7 @@
 #include <time.h>
 #include <linux/input.h>
 #include <sys/eventfd.h>
+#include <dirent.h>
 
 #include "hw/dji_display.h"
 #include "hw/dji_radio_shm.h"
@@ -55,6 +56,7 @@
 
 #define FALLBACK_FONT_PATH "/blackbox/font"
 #define ENTWARE_FONT_PATH "/opt/fonts/font"
+#define PACKAGE_FONT_PATH "/opt/fonts.d/"
 #define SDCARD_FONT_PATH "/storage/sdcard0/font"
 
 typedef enum
@@ -382,11 +384,33 @@ static int open_font(const char *filename, void **font, uint8_t page, uint8_t is
 static void load_font(void **font_buffer, uint8_t page, uint8_t is_hd, font_variant_e font_variant) {
     // Note: load_font will not replace an existing font.
     if(*font_buffer == NULL) {
-        if (open_font(SDCARD_FONT_PATH, font_buffer, page, is_hd, font_variant) < 0) {
-            if (open_font(ENTWARE_FONT_PATH, font_buffer, page, is_hd, font_variant) < 0) {
-                open_font(FALLBACK_FONT_PATH, font_buffer, page, is_hd, font_variant);
-            }
+        if (open_font(SDCARD_FONT_PATH, font_buffer, page, is_hd, font_variant) == 0) {
+            return;
         }
+
+        DIR *dir;
+        struct dirent *ent;
+        if ((dir = opendir(PACKAGE_FONT_PATH)) != NULL) {
+            while ((ent = readdir(dir)) != NULL) {
+                if (ent->d_type == DT_DIR && strncmp(ent->d_name, ".", 1) != 0 && strncmp(ent->d_name, "..", 2) != 0) {
+                    char sub_dir_path[255];
+                    snprintf(sub_dir_path, 255, "%s/%s/font", PACKAGE_FONT_PATH, ent->d_name);
+                    if (open_font(sub_dir_path, font_buffer, page, is_hd, font_variant) == 0) {
+                        closedir(dir);
+                        return;
+                    }
+                }
+            }
+            closedir(dir);
+        }
+
+        if (open_font(ENTWARE_FONT_PATH, font_buffer, page, is_hd, font_variant) == 0) {
+            return;
+        }
+        if (open_font(FALLBACK_FONT_PATH, font_buffer, page, is_hd, font_variant) == 0 ) {
+            return;
+        }
+
     }
 }
 
