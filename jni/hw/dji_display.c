@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "dji_display.h"
 #include "util/debug.h"
 
@@ -16,6 +17,7 @@ dji_display_state_t *dji_display_state_alloc(uint8_t is_v2_goggles) {
     dji_display_state_t *display_state = calloc(1, sizeof(dji_display_state_t));
     display_state->disp_instance_handle = (duss_disp_instance_handle_t *)calloc(1, sizeof(duss_disp_instance_handle_t));
     display_state->fb_0 = (duss_frame_buffer_t *)calloc(1,sizeof(duss_frame_buffer_t));
+    display_state->back_buf = calloc(1, sizeof(duss_frame_buffer_t));
     display_state->pb_0 = (duss_disp_plane_blending_t *)calloc(1, sizeof(duss_disp_plane_blending_t));
     display_state->is_v2_goggles = is_v2_goggles;
     display_state->frame_drawn = 0;
@@ -239,9 +241,14 @@ void dji_display_push_frame(dji_display_state_t *display_state) {
     } else {
         DEBUG_PRINT("Frame already drawn!\n");
     }
+    memcpy(display_state->back_buf, display_state->fb_0, sizeof(display_state->back_buf));
 }
 
 void *dji_display_get_fb_address(dji_display_state_t *display_state) {
      return display_state->fb0_virtual_addr;
 }
 
+void *dji_display_get_back_buf_address(dji_display_state_t *display_state)
+{
+        return display_state->back_buf;
+}
