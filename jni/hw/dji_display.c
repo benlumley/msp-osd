@@ -5,11 +5,9 @@
 #define GOGGLES_V1_VOFFSET 575
 #define GOGGLES_V2_VOFFSET 215
 
-static uint8_t which_fb = 0;
-
 static duss_result_t pop_func(duss_disp_instance_handle_t *disp_handle,duss_disp_plane_id_t plane_id, duss_frame_buffer_t *frame_buffer,void *user_ctx) {
     dji_display_state_t *display_state = (dji_display_state_t *)user_ctx;
-    display_state->frame_waiting = 0;
+    display_state->frame_drawn = 0;
     printf("fbdebug pop_func\n");
     return 0;
 }
@@ -18,17 +16,15 @@ dji_display_state_t *dji_display_state_alloc(uint8_t is_v2_goggles) {
     dji_display_state_t *display_state = calloc(1, sizeof(dji_display_state_t));
     display_state->disp_instance_handle = (duss_disp_instance_handle_t *)calloc(1, sizeof(duss_disp_instance_handle_t));
     display_state->fb_0 = (duss_frame_buffer_t *)calloc(1,sizeof(duss_frame_buffer_t));
-    display_state->fb_1 = (duss_frame_buffer_t *)calloc(1,sizeof(duss_frame_buffer_t));
     display_state->pb_0 = (duss_disp_plane_blending_t *)calloc(1, sizeof(duss_disp_plane_blending_t));
     display_state->is_v2_goggles = is_v2_goggles;
-    display_state->frame_waiting = 0;
+    display_state->frame_drawn = 0;
     return display_state;
 }
 
 void dji_display_state_free(dji_display_state_t *display_state) {
     free(display_state->disp_instance_handle);
     free(display_state->fb_0);
-    free(display_state->fb_1);
     free(display_state->pb_0);
     free(display_state);
 }
@@ -38,7 +34,6 @@ void dji_display_close_framebuffer(dji_display_state_t *display_state) {
     duss_hal_display_release_plane(display_state->disp_instance_handle, display_state->plane_id);
     duss_hal_display_close(display_state->disp_handle, &display_state->disp_instance_handle);
     duss_hal_mem_free(display_state->ion_buf_0);
-    duss_hal_mem_free(display_state->ion_buf_1);
     duss_hal_device_close(display_state->disp_handle);
     duss_hal_device_stop(display_state->ion_handle);
     duss_hal_device_close(display_state->ion_handle);
@@ -100,11 +95,7 @@ void dji_display_open_framebuffer(dji_display_state_t *display_state, duss_disp_
         printf("failed to acquire plane");
         exit(0);
     }
-    res = duss_hal_display_register_frame_cycle_callback(display_state->disp_instance_handle, plane_id, &pop_func, display_state);
-    if (res != 0) {
-        printf("failed to register callback");
-        exit(0);
-    }
+
     res = duss_hal_display_port_enable(display_state->disp_instance_handle, 3, 1);
     if (res != 0) {
         printf("failed to enable display port");
@@ -145,36 +136,18 @@ void dji_display_open_framebuffer(dji_display_state_t *display_state, duss_disp_
     }
     printf("first buffer VRAM mapped virtual memory is at %p : %p\n", display_state->fb0_virtual_addr, display_state->fb0_physical_addr);
 
-    res = duss_hal_mem_alloc(display_state->ion_handle,&display_state->ion_buf_1,0x473100,0x400,0,0x17);
-    if (res != 0) {
-        printf("failed to allocate FB1 VRAM");
-        exit(0);
-    }
-    res = duss_hal_mem_map(display_state->ion_buf_1,&display_state->fb1_virtual_addr);
-    if (res != 0) {
-        printf("failed to map FB1 VRAM");
-        exit(0);
-    }
-    res = duss_hal_mem_get_phys_addr(display_state->ion_buf_1, &display_state->fb1_physical_addr);
-    if (res != 0) {
-        printf("failed to get FB1 phys addr");
-        exit(0);
-    }
-    printf("second buffer VRAM mapped virtual memory is at %p : %p\n", display_state->fb1_virtual_addr, display_state->fb1_physical_addr);
+    duss_frame_buffer_t *fb = display_state->fb_0;
+    fb->buffer = display_state->ion_buf_0;
+    fb->pixel_format = display_state->is_v2_goggles ? DUSS_PIXFMT_RGBA8888_GOGGLES_V2 : DUSS_PIXFMT_RGBA8888; // 20012 instead on V2
+    fb->frame_id = 0;
+    fb->planes[0].bytes_per_line = 0x1680;
+    fb->planes[0].offset = 0;
+    fb->planes[0].plane_height = 810;
+    fb->planes[0].bytes_written = 0x473100;
+    fb->width = 1440;
+    fb->height = 810;
+    fb->plane_count = 1;
 
-    for(int i = 0; i < 2; i++) {
-        duss_frame_buffer_t *fb = i ? display_state->fb_1 : display_state->fb_0;
-        fb->buffer = i ? display_state->ion_buf_1 : display_state->ion_buf_0;
-        fb->pixel_format = display_state->is_v2_goggles ? DUSS_PIXFMT_RGBA8888_GOGGLES_V2 : DUSS_PIXFMT_RGBA8888; // 20012 instead on V2
-        fb->frame_id = i;
-        fb->planes[0].bytes_per_line = 0x1680;
-        fb->planes[0].offset = 0;
-        fb->planes[0].plane_height = 810;
-        fb->planes[0].bytes_written = 0x473100;
-        fb->width = 1440;
-        fb->height = 810;
-        fb->plane_count = 1;
-    }
 }
 
 
@@ -217,11 +190,6 @@ void dji_display_open_framebuffer_injected(dji_display_state_t *display_state, d
         DEBUG_PRINT("failed to acquire plane");
         exit(0);
     }
-    res = duss_hal_display_register_frame_cycle_callback(display_state->disp_instance_handle, plane_id, &pop_func, 0);
-    if (res != 0) {
-        DEBUG_PRINT("failed to register callback");
-        exit(0);
-    }
 
     res = duss_hal_display_plane_blending_set(display_state->disp_instance_handle, plane_id, display_state->pb_0);
 
@@ -247,55 +215,33 @@ void dji_display_open_framebuffer_injected(dji_display_state_t *display_state, d
     }
     DEBUG_PRINT("first buffer VRAM mapped virtual memory is at %p : %p\n", display_state->fb0_virtual_addr, display_state->fb0_physical_addr);
 
-    res = duss_hal_mem_alloc(display_state->ion_handle,&display_state->ion_buf_1,0x473100,0x400,0,0x17);
-    if (res != 0) {
-        DEBUG_PRINT("failed to allocate FB1 VRAM");
-        exit(0);
-    }
-    res = duss_hal_mem_map(display_state->ion_buf_1,&display_state->fb1_virtual_addr);
-    if (res != 0) {
-        DEBUG_PRINT("failed to map FB1 VRAM");
-        exit(0);
-    }
-    res = duss_hal_mem_get_phys_addr(display_state->ion_buf_1, &display_state->fb1_physical_addr);
-    if (res != 0) {
-        DEBUG_PRINT("failed to get FB1 phys addr");
-        exit(0);
-    }
-    DEBUG_PRINT("second buffer VRAM mapped virtual memory is at %p : %p\n", display_state->fb1_virtual_addr, display_state->fb1_physical_addr);
+    duss_frame_buffer_t *fb = display_state->fb_0;
+    fb->buffer = display_state->ion_buf_0;
+    fb->pixel_format = display_state->is_v2_goggles ? DUSS_PIXFMT_RGBA8888_GOGGLES_V2 : DUSS_PIXFMT_RGBA8888; // 20012 instead on V2
+    fb->frame_id = 0;
+    fb->planes[0].bytes_per_line = 0x1680;
+    fb->planes[0].offset = 0;
+    fb->planes[0].plane_height = 810;
+    fb->planes[0].bytes_written = 0x473100;
+    fb->width = 1440;
+    fb->height = 810;
+    fb->plane_count = 1;
 
-    for(int i = 0; i < 2; i++) {
-        duss_frame_buffer_t *fb = i ? display_state->fb_1 : display_state->fb_0;
-        fb->buffer = i ? display_state->ion_buf_1 : display_state->ion_buf_0;
-        fb->pixel_format = display_state->is_v2_goggles ? DUSS_PIXFMT_RGBA8888_GOGGLES_V2 : DUSS_PIXFMT_RGBA8888; // 20012 instead on V2
-        fb->frame_id = i;
-        fb->planes[0].bytes_per_line = 0x1680;
-        fb->planes[0].offset = 0;
-        fb->planes[0].plane_height = 810;
-        fb->planes[0].bytes_written = 0x473100;
-        fb->width = 1440;
-        fb->height = 810;
-        fb->plane_count = 1;
-    }
 }
 
 void dji_display_push_frame(dji_display_state_t *display_state) {
-    // print which_fb
-    printf("fbdebug which_fb: %d\n", which_fb);
-    if (display_state->frame_waiting == 0) {
-        which_fb = !which_fb;
-        duss_frame_buffer_t *fb = which_fb ? display_state->fb_1 : display_state->fb_0;
+    if (display_state->frame_drawn == 0) {
+        duss_frame_buffer_t *fb = display_state->fb_0;
         duss_hal_mem_sync(fb->buffer, 1);
-        display_state->frame_waiting = 1;
-        printf("fbdebug pushing frame\n");
+        display_state->frame_drawn = 1;
+        DEBUG_PRINT("fbdebug pushing frame\n");
         duss_hal_display_push_frame(display_state->disp_instance_handle, display_state->plane_id, fb);
     } else {
-        DEBUG_PRINT("!!! Dropped frame due to pending frame push!\n");
-        printf("fbdebug dropping frame\n");
+        DEBUG_PRINT("Frame already drawn!\n");
     }
 }
 
 void *dji_display_get_fb_address(dji_display_state_t *display_state) {
-     return which_fb ? display_state->fb1_virtual_addr : display_state->fb0_virtual_addr;
+     return display_state->fb0_virtual_addr;
 }
 
